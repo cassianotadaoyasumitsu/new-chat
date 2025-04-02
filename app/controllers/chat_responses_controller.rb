@@ -13,7 +13,8 @@ class ChatResponsesController < ApplicationController
     # Save user message
     user_message = document.chat_messages.create!(
       role: 'user',
-      content: params[:prompt]
+      content: params[:prompt],
+      document_id: document.id
     )
     Rails.logger.info "Saved user message: #{user_message.id}"
 
@@ -31,14 +32,13 @@ class ChatResponsesController < ApplicationController
           ],
           stream:   proc do |chunk|
             content = chunk.dig("choices", 0, "delta", "content")
-            if content.nil?
-              return
-            end
+            next if content.nil?
+            
             assistant_response += content
             Rails.logger.info "Streaming content: #{content}"
             sse.write({
-                        message: content,
-                      })
+              message: content,
+            })
           end
         }
       )
@@ -48,7 +48,8 @@ class ChatResponsesController < ApplicationController
         Rails.logger.info "Saving assistant response: #{assistant_response.length} characters"
         assistant_message = document.chat_messages.create!(
           role: 'assistant',
-          content: assistant_response
+          content: assistant_response,
+          document_id: document.id
         )
         Rails.logger.info "Saved assistant message: #{assistant_message.id}"
       else
