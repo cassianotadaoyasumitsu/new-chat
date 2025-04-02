@@ -1,0 +1,182 @@
+<div class="documents-container">
+  <div class="nav-links">
+    <%= link_to 'Home', root_path, class: 'nav-link' %>
+    <%= link_to 'Upload New Document', new_document_path, class: 'nav-link' %>
+  </div>
+
+  <div class="documents-header">
+    <h1>Your PDF Documents</h1>
+    <p class="subtitle">Upload and chat about your PDF documents</p>
+  </div>
+
+  <div class="documents-grid">
+    <% if @documents.any? %>
+      <% @documents.each do |document| %>
+        <div class="document-card">
+          <div class="document-card-content">
+            <h2><%= link_to document.title, document_path(document), class: 'document-title' %></h2>
+            <p class="document-meta">
+              Uploaded <%= time_ago_in_words(document.created_at) %> ago
+            </p>
+            <p class="document-preview">
+              <%= truncate(document.content, length: 150) if document.content.present? %>
+            </p>
+          </div>
+          <div class="document-card-actions">
+            <%= link_to 'View & Chat', document_path(document), class: 'button primary' %>
+            <%= button_to 'Delete', document_path(document), method: :delete, class: 'button danger', data: { confirm: 'Are you sure?' } %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="no-documents">
+        <p>No documents uploaded yet.</p>
+        <%= link_to 'Upload Your First Document', new_document_path, class: 'button primary' %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+.documents-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.documents-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.documents-header h1 {
+  font-size: 2.5em;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 1.2em;
+}
+
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.document-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.document-card-content {
+  padding: 20px;
+}
+
+.document-title {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.document-title:hover {
+  text-decoration: underline;
+}
+
+.document-meta {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+.document-preview {
+  color: #444;
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+.document-card-actions {
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #ddd;
+  display: flex;
+  gap: 10px;
+}
+
+.button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.button.primary {
+  background: #007bff;
+  color: white;
+}
+
+.button.primary:hover {
+  background: #0056b3;
+}
+
+.button.danger {
+  background: #dc3545;
+  color: white;
+}
+
+.button.danger:hover {
+  background: #c82333;
+}
+
+.no-documents {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  background: #f8f9fa;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+}
+
+.no-documents p {
+  color: #666;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+}
+
+.nav-links {
+  margin-bottom: 20px;
+}
+
+.nav-link {
+  display: inline-block;
+  padding: 8px 16px;
+  margin-right: 10px;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+  background: #0056b3;
+  text-decoration: none;
+  color: white;
+}
+</style>

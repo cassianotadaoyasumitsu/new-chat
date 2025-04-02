@@ -1,0 +1,185 @@
+<div class="document-container">
+  <div class="nav-links">
+    <%= link_to 'Home', root_path, class: 'nav-link' %>
+    <%= link_to 'All Documents', documents_path, class: 'nav-link' %>
+  </div>
+
+  <div class="document-info">
+    <h1><%= @document.title %></h1>
+    <p>Uploaded <%= time_ago_in_words(@document.created_at) %> ago</p>
+  </div>
+
+  <div class="chat-container">
+    <div id="chat-messages" class="messages">
+      <% @chat_messages.each do |message| %>
+        <div class="message <%= message.role %>-message">
+          <%= message.content %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="chat-input">
+      <form id="chat-form">
+        <input type="text" id="prompt" placeholder="Ask a question about the PDF..." required>
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%= turbo_stream_from "chat_responses" %>
+
+<script>
+document.addEventListener('turbo:load', function() {
+  const form = document.getElementById('chat-form');
+  const messages = document.getElementById('chat-messages');
+  const promptInput = document.getElementById('prompt');
+
+  // Function to scroll to bottom of messages
+  function scrollToBottom() {
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // Initial scroll to bottom
+  scrollToBottom();
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const prompt = promptInput.value;
+    if (!prompt) return;
+
+    // Add user message
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user-message';
+    userMessage.textContent = prompt;
+    messages.appendChild(userMessage);
+    scrollToBottom();
+
+    // Add assistant message placeholder
+    const assistantMessage = document.createElement('div');
+    assistantMessage.className = 'message assistant-message';
+    messages.appendChild(assistantMessage);
+    scrollToBottom();
+
+    // Clear input
+    promptInput.value = '';
+
+    // Connect to SSE
+    const eventSource = new EventSource(`/chat_responses/show?prompt=${encodeURIComponent(prompt)}&document_id=${<%= @document.id %>}`);
+    
+    eventSource.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+      assistantMessage.textContent += data.message;
+      scrollToBottom();
+    };
+
+    eventSource.onerror = function() {
+      eventSource.close();
+      // Only show error if no content was received
+      if (!assistantMessage.textContent) {
+        assistantMessage.textContent = 'Error: Failed to get response. Please try again.';
+        scrollToBottom();
+      }
+    };
+  });
+
+  // Add smooth scrolling behavior
+  messages.style.scrollBehavior = 'smooth';
+});
+</script>
+
+<style>
+.document-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.document-info {
+  margin-bottom: 20px;
+}
+
+.chat-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.messages {
+  height: 400px;
+  overflow-y: auto;
+  padding: 20px;
+  background: #f9f9f9;
+  scroll-behavior: smooth;
+}
+
+.message {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  max-width: 80%;
+}
+
+.user-message {
+  background: #007bff;
+  color: white;
+  margin-left: auto;
+}
+
+.assistant-message {
+  background: #e9ecef;
+  color: #212529;
+}
+
+.chat-input {
+  padding: 20px;
+  background: white;
+  border-top: 1px solid #ddd;
+}
+
+.chat-input form {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.chat-input button {
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.chat-input button:hover {
+  background: #0056b3;
+}
+
+.nav-links {
+  margin-bottom: 20px;
+}
+
+.nav-link {
+  display: inline-block;
+  padding: 8px 16px;
+  margin-right: 10px;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+  background: #0056b3;
+  text-decoration: none;
+  color: white;
+}
+</style>

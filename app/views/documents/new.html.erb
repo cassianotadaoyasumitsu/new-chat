@@ -1,0 +1,113 @@
+<div class="upload-container">
+  <h1>Upload New PDF Document</h1>
+
+  <%= form_with(model: @document, local: true) do |f| %>
+    <% if @document.errors.any? %>
+      <div class="error-messages">
+        <h2><%= pluralize(@document.errors.count, "error") %> prohibited this document from being saved:</h2>
+        <ul>
+          <% @document.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :title %>
+      <%= f.text_field :title, class: 'form-control' %>
+    </div>
+
+    <div class="field">
+      <%= f.label :pdf_file %>
+      <%= f.file_field :pdf_file, accept: 'application/pdf', class: 'form-control' %>
+    </div>
+
+    <div class="actions">
+      <%= f.submit 'Upload PDF', class: 'button primary' %>
+      <%= link_to 'Back to Documents', documents_path, class: 'button secondary' %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+.upload-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.error-messages {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.error-messages h2 {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.error-messages ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+.button {
+  padding: 10px 20px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.button.primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.button.primary:hover {
+  background-color: #0056b3;
+}
+
+.button.secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.button.secondary:hover {
+  background-color: #545b62;
+}
+</style> 
